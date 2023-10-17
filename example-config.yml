@@ -1,0 +1,13 @@
+loglevel: Debug
+WriteDirectory: test_output
+raids:
+  RDS:
+    config:
+      - database: test
+        host: localhost
+        password: password
+        port: 3306
+        user: root
+    tactic: CCC-Taxonomy # current formatting
+    tactics:  # future formatting
+      - CCC-Taxonomy
