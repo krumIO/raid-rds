@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/privateerproj/privateer-sdk/command"
 	"github.com/privateerproj/privateer-sdk/plugin"
@@ -20,7 +18,27 @@ var (
 	buildGitCommitHash string
 	buildTime          string
 
-	RaidName = "RDS" // TODO: Change this to the name of your Raid
+	RaidName = "RDS"
+	Strikes  = &strikes.Strikes{}
+
+	AvailableStrikes = map[string][]raidengine.Strike{
+		"CCC-Taxonomy": {
+			Strikes.SQLFeatures,
+			// Strikes.VerticalScaling,
+			// Strikes.Replication,
+			// Strikes.MultiRegion,
+			// Strikes.AutomatedBackup,
+			// Strikes.BackupRecovery,
+			// Strikes.Encryption,
+			// Strikes.RBAC,
+			// Strikes.Logging,
+			// Strikes.Monitoring,
+			// Strikes.Alerting,
+		},
+		"CIS": {
+			// Strikes.DNE,
+		},
+	}
 
 	// runCmd represents the base command when called without any subcommands
 	runCmd = &cobra.Command{
@@ -56,8 +74,6 @@ func Execute(version, commitHash, builtAt string) {
 
 func init() {
 	command.SetBase(runCmd) // This initializes the base CLI functionality
-	// Todo: Add any additional flags/options here
-	viper.BindPFlag("raids.rds.tactic", runCmd.PersistentFlags().Lookup("tactic"))
 }
 
 // Raid meets the Privateer Service Pack interface
@@ -66,8 +82,6 @@ type Raid struct {
 
 // cleanupFunc is called when the plugin is stopped
 func cleanupFunc() error {
-	// Todo: Cleanup seeded data and connections
-	// Todo: add flag to optionally keep seeded data
 	return nil
 }
 
@@ -76,38 +90,5 @@ func cleanupFunc() error {
 // Adding raidengine.SetupCloseHandler(cleanupFunc) will allow you to append custom cleanup behavior
 func (r *Raid) Start() error {
 	raidengine.SetupCloseHandler(cleanupFunc)
-	return raidengine.Run(RaidName, getStrikes()) // Return errors from strike executions
-}
-
-// GetStrikes returns a list of probe objects
-func getStrikes() []raidengine.Strike {
-	logger := raidengine.GetLogger(RaidName, false)
-	a := &strikes.Antijokes{
-		Log: logger,
-	}
-	availableStrikes := map[string][]raidengine.Strike{
-		"CCC-Taxonomy": {
-			a.SQLFeatures,
-			a.VerticalScaling,
-			a.Replication,
-			a.MultiRegion,
-			a.AutomatedBackup,
-			a.BackupRecovery,
-			a.Encryption,
-			a.RBAC,
-			a.Logging,
-			a.Monitoring,
-			a.Alerting,
-		},
-		"CIS": {
-			a.DNE,
-		},
-	}
-	tactic := viper.GetString("raids.rds.tactic")
-	strikes := availableStrikes[tactic]
-	if len(strikes) == 0 {
-		message := fmt.Sprintf("No strikes were found for the provided strike set: %s", tactic)
-		logger.Error(message)
-	}
-	return strikes
+	return raidengine.Run(RaidName, AvailableStrikes, Strikes)
 }

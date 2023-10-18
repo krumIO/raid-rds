@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/privateerproj/privateer-pack-wireframe/cmd"
+	"github.com/krumIO/raid-rds/cmd"
 )
 
 var (
