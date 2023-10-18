@@ -8,6 +8,5 @@ raids:
       password: password
       port: 3306
       user: root
-    tactic: CCC-Taxonomy # current formatting
-    tactics:  # future formatting
+    tactics:
       - CCC-Taxonomy
