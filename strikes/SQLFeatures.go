@@ -8,17 +8,21 @@ import (
 	"github.com/privateerproj/privateer-sdk/utils"
 )
 
-// ToDo: Features to implement
-// VerticalScaling.go
-// Replication.go
-// MultiRegion.go
-// AutomatedBackup.go
-// BackupRecovery.go
-// Encryption.go
-// RBAC.go
-// Logging.go
-// Monitoring.go
-// Alerting.go
+// Todo/Roadmap: Features to evaluate implementing
+// SQLFeatures.go
+// VerticalScaling.go: not sure if possible
+// Replication.go - future: check for master agent replication
+// 	write to agent (fail)
+// 	write to master (pass)
+// 	write to master and read from agent (pass)
+// MultiRegion.go - not sure if possible
+// AutomatedBackup.go - AWS CLI - check backup interval
+// BackupRecovery.go - AWS CLI - check for point in time recovery
+// Encryption.go - AWS CLI - check for encryption and for connection with certificate
+// RBAC.go - requires precreated users with varying roles
+// Logging.go - check for enabled, req API/CLI
+// Monitoring.go - check for enabled, req API/CLI
+// Alerting.go - check for enabled, req API/CLI
 
 func (a *Strikes) SetLogger(loggerName string) {
 	a.Log = raidengine.GetLogger(loggerName, false)
