@@ -24,10 +24,6 @@ import (
 // Monitoring.go - check for enabled, req API/CLI
 // Alerting.go - check for enabled, req API/CLI
 
-func (a *Strikes) SetLogger(loggerName string) {
-	a.Log = raidengine.GetLogger(loggerName, false)
-}
-
 // This creates a database table
 func (a *Strikes) SQLFeatures() (strikeName string, result raidengine.StrikeResult) {
 	strikeName = "SQLFeatures"
@@ -61,26 +57,12 @@ func (a *Strikes) SQLFeatures() (strikeName string, result raidengine.StrikeResu
 	return
 }
 
-func connectToDb() (result raidengine.MovementResult) {
-	result = raidengine.MovementResult{
-		Description: "The database host must be available and accepting connections",
-		Function:    utils.CallerPath(0),
-	}
-	_, err := getConfig()
-	if err != nil {
-		result.Message = err.Error()
-		return
-	}
-	result.Passed = true
-	return
-}
-
 func createTable() (result raidengine.MovementResult) {
 	result = raidengine.MovementResult{
 		Description: "A table can be created in the database",
 		Function:    utils.CallerPath(0),
 	}
-	name, err := getConfig()
+	name, err := getDBConfig()
 	if err != nil {
 		result.Message = err.Error()
 		return

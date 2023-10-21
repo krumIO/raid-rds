@@ -24,10 +24,10 @@ var (
 	AvailableStrikes = map[string][]raidengine.Strike{
 		"CCC-Taxonomy": {
 			Strikes.SQLFeatures,
+			Strikes.AutomatedBackups,
 			// Strikes.VerticalScaling,
 			// Strikes.Replication,
 			// Strikes.MultiRegion,
-			// Strikes.AutomatedBackup,
 			// Strikes.BackupRecovery,
 			// Strikes.Encryption,
 			// Strikes.RBAC,
