@@ -26,21 +26,28 @@ func (a *Strikes) SetLogger(loggerName string) {
 }
 
 func getDBConfig() (string, error) {
-	if viper.IsSet("raids.RDS.config") && viper.IsSet("raids.RDS.config.database") {
+	if viper.IsSet("raids.RDS.aws.config.host") && viper.IsSet("raids.RDS.aws.config.database") {
 		return "database_host_placeholder", nil
 	}
 	return "", errors.New("database url must be set in the config file")
 }
 
-func getAWSConfig() (cfg aws.Config, err error) {
-	if viper.IsSet("raids.RDS.config") &&
-		viper.IsSet("raids.RDS.config.aws_access_key") &&
-		viper.IsSet("raids.RDS.config.aws_secret_key") {
+func getDBInstanceIdentifier() (string, error) {
+	if viper.IsSet("raids.RDS.aws.config.instance_identifier") {
+		return viper.GetString("raids.RDS.aws.config.instance_identifier"), nil
+	}
+	return "", errors.New("database instance identifier must be set in the config file")
+}
 
-		access_key := viper.GetString("raids.RDS.config.aws_access_key")
-		secret_key := viper.GetString("raids.RDS.config.aws_secret_key")
-		session_key := viper.GetString("raids.RDS.config.aws_session_key")
-		region := viper.GetString("raids.RDS.config.aws_region")
+func getAWSConfig() (cfg aws.Config, err error) {
+	if viper.IsSet("raids.RDS.aws.creds") &&
+		viper.IsSet("raids.RDS.aws.creds.aws_access_key") &&
+		viper.IsSet("raids.RDS.aws.creds.aws_secret_key") {
+
+		access_key := viper.GetString("raids.RDS.aws.creds.aws_access_key")
+		secret_key := viper.GetString("raids.RDS.aws.creds.aws_secret_key")
+		session_key := viper.GetString("raids.RDS.aws.creds.aws_session_key")
+		region := viper.GetString("raids.RDS.aws.creds.aws_region")
 
 		creds := credentials.NewStaticCredentialsProvider(access_key, secret_key, session_key)
 		cfg, err = config.LoadDefaultConfig(context.TODO(), config.WithCredentialsProvider(creds), config.WithRegion(region))

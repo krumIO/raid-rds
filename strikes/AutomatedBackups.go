@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/privateerproj/privateer-sdk/raidengine"
 	"github.com/privateerproj/privateer-sdk/utils"
-	"github.com/spf13/viper"
 )
 
 // Todo/Roadmap: Features to evaluate implementing
@@ -58,8 +57,10 @@ func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult)
 	}
 
 	rdsClient := rds.NewFromConfig(cfg)
+	identifier, _ := getDBInstanceIdentifier()
+
 	input := &rds.DescribeDBInstancesInput{
-		DBInstanceIdentifier: aws.String(viper.GetString("raids.RDS.config.aws_db_instance_identifier")),
+		DBInstanceIdentifier: aws.String(identifier),
 	}
 
 	instances, err := rdsClient.DescribeDBInstances(context.TODO(), input)
@@ -81,13 +82,14 @@ func checkRDSAutomatedBackupMovement(cfg aws.Config) (result raidengine.Movement
 	}
 
 	rdsClient := rds.NewFromConfig(cfg)
+	identifier, _ := getDBInstanceIdentifier()
+
 	input := &rds.DescribeDBInstanceAutomatedBackupsInput{
-		DBInstanceIdentifier: aws.String(viper.GetString("raids.RDS.config.aws_db_instance_identifier")),
+		DBInstanceIdentifier: aws.String(identifier),
 	}
 
 	backups, err := rdsClient.DescribeDBInstanceAutomatedBackups(context.TODO(), input)
 	if err != nil {
-		// Handle error
 		result.Message = err.Error()
 		result.Passed = false
 		return
