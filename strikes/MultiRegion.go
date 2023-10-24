@@ -1,10 +1,7 @@
 package strikes
 
 import (
-	"context"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/privateerproj/privateer-sdk/raidengine"
 	"github.com/privateerproj/privateer-sdk/utils"
 )
@@ -52,45 +49,50 @@ func checkRDSMultiRegionMovement(cfg aws.Config) (result raidengine.MovementResu
 		Description: "Check if the instance has multi region enabled",
 		Function:    utils.CallerPath(0),
 	}
+	instanceIdentifier, _ := getHostDBInstanceIdentifier()
 
-	rdsClient := rds.NewFromConfig(cfg)
-	identifier, _ := getDBInstanceIdentifier()
+	instance, _ := getRDSInstanceFromIdentifier(cfg, instanceIdentifier)
 
-	input := &rds.DescribeDBInstanceAutomatedBackupsInput{
-		DBInstanceIdentifier: aws.String(identifier),
-	}
+	// get read replicas from the instance
+	readReplicas := instance.DBInstances[0].ReadReplicaDBInstanceIdentifiers
 
-	backups, err := rdsClient.DescribeDBInstanceAutomatedBackups(context.TODO(), input)
-	if err != nil {
-		result.Message = "Failed to fetch automated backups for instance " + identifier
+	if len(readReplicas) == 0 {
 		result.Passed = false
+		result.Message = "Multi Region instances not found"
 		return
 	}
 
-	var regions []string
-	for _, backup := range backups.DBInstanceAutomatedBackups {
-		regions = append(regions, *backup.Region)
-	}
+	hostRDSRegion, _ := getHostRDSRegion()
 
-	// This checks if theres a read replica in a different region
-	if len(regions) > 0 {
-		hostDBRegion := getRDSRegion()
-		for _, region := range regions {
-			// region from the instances are in the form of "use2"
-			abbreviation, exists := AWS_REGIONS_ABBR[hostDBRegion]
-			if exists {
-				if region != abbreviation {
-					result.Passed = true
-					result.Message = "Completed Successfully"
-					return
-				}
-			}
+	// loop over the read replicas and check if they are in a different region
+	for _, replica := range readReplicas {
+		// we are getting the instance identifier the read replicas
+		// get instance from the replica identifier
+		replicaInstance, err := getRDSInstanceFromIdentifier(cfg, replica)
 
+		if err != nil {
+			result.Passed = false
+			result.Message = err.Error()
+			return
+		}
+
+		if len(replicaInstance.DBInstances) == 0 {
+			result.Passed = false
+			result.Message = "Cannot access the replica instance " + replica
+			return
+		}
+
+		// check if replica region matches the host region
+		az := *replicaInstance.DBInstances[0].AvailabilityZone
+		// db instance doesnt contain the region so we need to remove the last character from the az
+		if az[:len(az)-1] == hostRDSRegion {
+			result.Passed = false
+			result.Message = "Multi Region instances not found"
+			return
 		}
 	}
 
-	result.Passed = false
-	result.Message = "Multi Region instances not found"
+	result.Passed = true
 	return
 
 }

@@ -14,26 +14,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	AWS_REGIONS_ABBR = map[string]string{
-		"us-east-1":      "use1",
-		"us-east-2":      "use2",
-		"us-west-1":      "usw1",
-		"us-west-2":      "usw2",
-		"ca-central-1":   "cac1",
-		"eu-west-1":      "euw1",
-		"eu-west-2":      "euw2",
-		"eu-central-1":   "euc1",
-		"eu-north-1":     "eun1",
-		"ap-northeast-1": "apne1",
-		"ap-northeast-2": "apne2",
-		"ap-southeast-1": "apse1",
-		"ap-southeast-2": "apse2",
-		"ap-south-1":     "aps1",
-		"sa-east-1":      "sae1",
-	}
-)
-
 type Strikes struct {
 	Log hclog.Logger
 }
@@ -53,15 +33,18 @@ func getDBConfig() (string, error) {
 	return "", errors.New("database url must be set in the config file")
 }
 
-func getDBInstanceIdentifier() (string, error) {
+func getHostDBInstanceIdentifier() (string, error) {
 	if viper.IsSet("raids.RDS.aws.config.instance_identifier") {
 		return viper.GetString("raids.RDS.aws.config.instance_identifier"), nil
 	}
 	return "", errors.New("database instance identifier must be set in the config file")
 }
 
-func getRDSRegion() string {
-	return viper.GetString("raids.RDS.aws.config.region")
+func getHostRDSRegion() (string, error) {
+	if viper.IsSet("raids.RDS.aws.config.region") {
+		return viper.GetString("raids.RDS.aws.config.region"), nil
+	}
+	return "", errors.New("database instance identifier must be set in the config file")
 }
 
 func getAWSConfig() (cfg aws.Config, err error) {
@@ -102,7 +85,9 @@ func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult)
 		Function:    utils.CallerPath(0),
 	}
 
-	instance, err := getRDSInstance(cfg)
+	instanceIdentifier, _ := getHostDBInstanceIdentifier()
+
+	instance, err := getRDSInstanceFromIdentifier(cfg, instanceIdentifier)
 	if err != nil {
 		// Handle error
 		result.Message = err.Error()
@@ -113,9 +98,8 @@ func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult)
 	return
 }
 
-func getRDSInstance(cfg aws.Config) (instance *rds.DescribeDBInstancesOutput, err error) {
+func getRDSInstanceFromIdentifier(cfg aws.Config, identifier string) (instance *rds.DescribeDBInstancesOutput, err error) {
 	rdsClient := rds.NewFromConfig(cfg)
-	identifier, _ := getDBInstanceIdentifier()
 
 	input := &rds.DescribeDBInstancesInput{
 		DBInstanceIdentifier: aws.String(identifier),

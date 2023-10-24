@@ -11,6 +11,7 @@ raids:
       config:
         instance_identifier: unique-id-name
         database: test
+        region: us-east-1
         host: localhost
         password: password
         port: 3306

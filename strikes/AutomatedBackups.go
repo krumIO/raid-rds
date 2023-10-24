@@ -57,10 +57,10 @@ func checkRDSAutomatedBackupMovement(cfg aws.Config) (result raidengine.Movement
 	}
 
 	rdsClient := rds.NewFromConfig(cfg)
-	identifier, _ := getDBInstanceIdentifier()
+	instanceIdentifier, _ := getHostDBInstanceIdentifier()
 
 	input := &rds.DescribeDBInstanceAutomatedBackupsInput{
-		DBInstanceIdentifier: aws.String(identifier),
+		DBInstanceIdentifier: aws.String(instanceIdentifier),
 	}
 
 	backups, err := rdsClient.DescribeDBInstanceAutomatedBackups(context.TODO(), input)
