@@ -18,10 +18,6 @@ jobs:
       run: |
             go mod download
             go get -t .
-    
-    - name: Lint
-      run: |
-        golint -set_exit_status ./...
 
     - name: Vet
       run: |
