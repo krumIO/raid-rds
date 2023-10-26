@@ -41,8 +41,8 @@ func getHostDBInstanceIdentifier() (string, error) {
 }
 
 func getHostRDSRegion() (string, error) {
-	if viper.IsSet("raids.RDS.aws.config.region") {
-		return viper.GetString("raids.RDS.aws.config.region"), nil
+	if viper.IsSet("raids.RDS.aws.config.primary_region") {
+		return viper.GetString("raids.RDS.aws.config.primary_region"), nil
 	}
 	return "", errors.New("database instance identifier must be set in the config file")
 }
