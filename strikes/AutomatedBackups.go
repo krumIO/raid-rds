@@ -23,7 +23,7 @@ func (a *Strikes) AutomatedBackups() (strikeName string, result raidengine.Strik
 		Movements:   make(map[string]raidengine.MovementResult),
 	}
 
-	// Movement
+	// Get Configuration
 	cfg, err := getAWSConfig()
 	if err != nil {
 		result.Message = err.Error()
@@ -37,40 +37,15 @@ func (a *Strikes) AutomatedBackups() (strikeName string, result raidengine.Strik
 		return
 	}
 
-	autmatedBackupsMovement := checkRDSAutomatedBackupMovement(cfg)
-	result.Movements["CheckForDBInstanceAutomatedBackups"] = autmatedBackupsMovement
-	if !autmatedBackupsMovement.Passed {
-		result.Message = autmatedBackupsMovement.Message
+	automatedBackupsMovement := checkRDSAutomatedBackupMovement(cfg)
+	result.Movements["CheckForDBInstanceAutomatedBackups"] = automatedBackupsMovement
+	if !automatedBackupsMovement.Passed {
+		result.Message = automatedBackupsMovement.Message
 		return
 	}
 
 	result.Passed = true
 	result.Message = "Completed Successfully"
-	return
-}
-
-func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult) {
-	// check if the instance is available
-	result = raidengine.MovementResult{
-		Description: "Check if the instance is available/exists",
-		Function:    utils.CallerPath(0),
-	}
-
-	rdsClient := rds.NewFromConfig(cfg)
-	identifier, _ := getDBInstanceIdentifier()
-
-	input := &rds.DescribeDBInstancesInput{
-		DBInstanceIdentifier: aws.String(identifier),
-	}
-
-	instances, err := rdsClient.DescribeDBInstances(context.TODO(), input)
-	if err != nil {
-		// Handle error
-		result.Message = err.Error()
-		result.Passed = false
-		return
-	}
-	result.Passed = len(instances.DBInstances) > 0
 	return
 }
 
@@ -82,10 +57,10 @@ func checkRDSAutomatedBackupMovement(cfg aws.Config) (result raidengine.Movement
 	}
 
 	rdsClient := rds.NewFromConfig(cfg)
-	identifier, _ := getDBInstanceIdentifier()
+	instanceIdentifier, _ := getHostDBInstanceIdentifier()
 
 	input := &rds.DescribeDBInstanceAutomatedBackupsInput{
-		DBInstanceIdentifier: aws.String(identifier),
+		DBInstanceIdentifier: aws.String(instanceIdentifier),
 	}
 
 	backups, err := rdsClient.DescribeDBInstanceAutomatedBackups(context.TODO(), input)

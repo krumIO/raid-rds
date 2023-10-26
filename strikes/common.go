@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/rds"
 	hclog "github.com/hashicorp/go-hclog"
 	"github.com/privateerproj/privateer-sdk/raidengine"
 	"github.com/privateerproj/privateer-sdk/utils"
@@ -32,9 +33,16 @@ func getDBConfig() (string, error) {
 	return "", errors.New("database url must be set in the config file")
 }
 
-func getDBInstanceIdentifier() (string, error) {
+func getHostDBInstanceIdentifier() (string, error) {
 	if viper.IsSet("raids.RDS.aws.config.instance_identifier") {
 		return viper.GetString("raids.RDS.aws.config.instance_identifier"), nil
+	}
+	return "", errors.New("database instance identifier must be set in the config file")
+}
+
+func getHostRDSRegion() (string, error) {
+	if viper.IsSet("raids.RDS.aws.config.primary_region") {
+		return viper.GetString("raids.RDS.aws.config.primary_region"), nil
 	}
 	return "", errors.New("database instance identifier must be set in the config file")
 }
@@ -42,7 +50,8 @@ func getDBInstanceIdentifier() (string, error) {
 func getAWSConfig() (cfg aws.Config, err error) {
 	if viper.IsSet("raids.RDS.aws.creds") &&
 		viper.IsSet("raids.RDS.aws.creds.aws_access_key") &&
-		viper.IsSet("raids.RDS.aws.creds.aws_secret_key") {
+		viper.IsSet("raids.RDS.aws.creds.aws_secret_key") &&
+		viper.IsSet("raids.RDS.aws.creds.aws_region") {
 
 		access_key := viper.GetString("raids.RDS.aws.creds.aws_access_key")
 		secret_key := viper.GetString("raids.RDS.aws.creds.aws_secret_key")
@@ -66,5 +75,36 @@ func connectToDb() (result raidengine.MovementResult) {
 		return
 	}
 	result.Passed = true
+	return
+}
+
+func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult) {
+	// check if the instance is available
+	result = raidengine.MovementResult{
+		Description: "Check if the instance is available/exists",
+		Function:    utils.CallerPath(0),
+	}
+
+	instanceIdentifier, _ := getHostDBInstanceIdentifier()
+
+	instance, err := getRDSInstanceFromIdentifier(cfg, instanceIdentifier)
+	if err != nil {
+		// Handle error
+		result.Message = err.Error()
+		result.Passed = false
+		return
+	}
+	result.Passed = len(instance.DBInstances) > 0
+	return
+}
+
+func getRDSInstanceFromIdentifier(cfg aws.Config, identifier string) (instance *rds.DescribeDBInstancesOutput, err error) {
+	rdsClient := rds.NewFromConfig(cfg)
+
+	input := &rds.DescribeDBInstancesInput{
+		DBInstanceIdentifier: aws.String(identifier),
+	}
+
+	instance, err = rdsClient.DescribeDBInstances(context.TODO(), input)
 	return
 }

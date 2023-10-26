@@ -25,9 +25,9 @@ var (
 		"CCC-Taxonomy": {
 			Strikes.SQLFeatures,
 			Strikes.AutomatedBackups,
+			Strikes.MultiRegion,
 			// Strikes.VerticalScaling,
 			// Strikes.Replication,
-			// Strikes.MultiRegion,
 			// Strikes.BackupRecovery,
 			// Strikes.Encryption,
 			// Strikes.RBAC,
