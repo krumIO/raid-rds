@@ -19,8 +19,7 @@ make release
 ```
 
 ## Primary Maintainer
-
-![Krumware Logo](https://www.krum.io/assets/icons/logo-with-name.svg)
+![Krumware Logo](https://github.com/krumIO/raid-rds/assets/12394597/4111dc5b-927c-48a9-a992-c656c3cbf472)
 
 In accordance with the vision outlined by the 
 [Compliant Financial Infrastructure](https://github.com/finos/compliant-financial-infrastructure)
