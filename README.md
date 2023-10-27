@@ -53,4 +53,4 @@ strikes ("tactic").
 The new tactic will enable a user to select whether they would like to validate an RDS service's
 compliance with CCC's service taxonomy or security controls.
 
-Please join us in the [Runtime Validation WG Slack](https://finos-lf.slack.com/archives/C04G0M73NUE). New contributors to this group will allow larger and more complex tactic to be developed more rapidly.
+Please join us in the [Runtime Validation WG Slack](https://finos-lf.slack.com/archives/C04G0M73NUE). New contributors to this group will allow a larger and more complex tactic to be developed more rapidly.
