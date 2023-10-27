@@ -43,7 +43,7 @@ deployed by an ansible playbook.
 ### Near Future
 
 As the CFI Reproducible Infrastructure WG continues to iterate on their infrastructure as code,
-additional tests ("strikes) can be built to ensure holistic compliance with the CCC taxonomy.
+additional tests ("strikes") can be built to ensure holistic compliance with the CCC taxonomy.
 
 ### Optimistic Future
 
