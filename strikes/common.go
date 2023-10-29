@@ -27,36 +27,36 @@ func (a *Strikes) SetLogger(loggerName string) {
 }
 
 func getDBConfig() (string, error) {
-	if viper.IsSet("raids.RDS.aws.config.host") && viper.IsSet("raids.RDS.aws.config.database") {
+	if viper.IsSet("raids.rds.config.host") && viper.IsSet("raids.rds.config.database") {
 		return "database_host_placeholder", nil
 	}
 	return "", errors.New("database url must be set in the config file")
 }
 
 func getHostDBInstanceIdentifier() (string, error) {
-	if viper.IsSet("raids.RDS.aws.config.instance_identifier") {
-		return viper.GetString("raids.RDS.aws.config.instance_identifier"), nil
+	if viper.IsSet("raids.rds.config.instance_identifier") {
+		return viper.GetString("raids.rds.config.instance_identifier"), nil
 	}
 	return "", errors.New("database instance identifier must be set in the config file")
 }
 
 func getHostRDSRegion() (string, error) {
-	if viper.IsSet("raids.RDS.aws.config.primary_region") {
-		return viper.GetString("raids.RDS.aws.config.primary_region"), nil
+	if viper.IsSet("raids.rds.config.primary_region") {
+		return viper.GetString("raids.rds.config.primary_region"), nil
 	}
 	return "", errors.New("database instance identifier must be set in the config file")
 }
 
 func getAWSConfig() (cfg aws.Config, err error) {
-	if viper.IsSet("raids.RDS.aws.creds") &&
-		viper.IsSet("raids.RDS.aws.creds.aws_access_key") &&
-		viper.IsSet("raids.RDS.aws.creds.aws_secret_key") &&
-		viper.IsSet("raids.RDS.aws.creds.aws_region") {
+	if viper.IsSet("raids.rds.creds") &&
+		viper.IsSet("raids.rds.creds.aws_access_key") &&
+		viper.IsSet("raids.rds.creds.aws_secret_key") &&
+		viper.IsSet("raids.rds.creds.aws_region") {
 
-		access_key := viper.GetString("raids.RDS.aws.creds.aws_access_key")
-		secret_key := viper.GetString("raids.RDS.aws.creds.aws_secret_key")
-		session_key := viper.GetString("raids.RDS.aws.creds.aws_session_key")
-		region := viper.GetString("raids.RDS.aws.creds.aws_region")
+		access_key := viper.GetString("raids.rds.creds.aws_access_key")
+		secret_key := viper.GetString("raids.rds.creds.aws_secret_key")
+		session_key := viper.GetString("raids.rds.creds.aws_session_key")
+		region := viper.GetString("raids.rds.creds.aws_region")
 
 		creds := credentials.NewStaticCredentialsProvider(access_key, secret_key, session_key)
 		cfg, err = config.LoadDefaultConfig(context.TODO(), config.WithCredentialsProvider(creds), config.WithRegion(region))

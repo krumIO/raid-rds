@@ -1,22 +1,19 @@
 loglevel: Debug
 WriteDirectory: test_output
 raids:
-  RDS:
-    aws:
-      creds:
-        aws_access_key: access
-        aws_secret_key: supersecret
-        aws_session_key: ""
-        aws_region: us-east-1
-      config:
-        instance_identifier: unique-id-name
-        database: test
-        primary_region: us-east-1
-        host: localhost
-        password: password
-        port: 3306
-        user: root
-    # google
-    # azure
+  rds:
+    creds:
+      aws_access_key: access
+      aws_secret_key: supersecret
+      aws_session_key: ""
+      aws_region: us-east-1
+    config:
+      instance_identifier: unique-id-name
+      database: test
+      primary_region: us-east-1
+      host: localhost
+      password: password
+      port: 3306
+      user: root
     tactics:
       - CCC-Taxonomy
