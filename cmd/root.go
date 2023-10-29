@@ -22,6 +22,11 @@ var (
 	Strikes  = &strikes.Strikes{}
 
 	AvailableStrikes = map[string][]raidengine.Strike{
+		"default": {
+			Strikes.SQLFeatures,
+			Strikes.AutomatedBackups,
+			Strikes.MultiRegion,
+		},
 		"CCC-Taxonomy": {
 			Strikes.SQLFeatures,
 			Strikes.AutomatedBackups,
@@ -39,7 +44,6 @@ var (
 			// Strikes.DNE,
 		},
 	}
-
 	// runCmd represents the base command when called without any subcommands
 	runCmd = &cobra.Command{
 		Use:   RaidName,

@@ -3,6 +3,7 @@ package strikes
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -27,40 +28,50 @@ func (a *Strikes) SetLogger(loggerName string) {
 }
 
 func getDBConfig() (string, error) {
-	if viper.IsSet("raids.rds.config.host") && viper.IsSet("raids.rds.config.database") {
-		return "database_host_placeholder", nil
+	err := checkConfigValues([]string{
+		"raids.rds.config.host",
+		"raids.rds.config.database",
+	})
+	if err != nil {
+		return "", err
 	}
-	return "", errors.New("database url must be set in the config file")
+	return "database_host_placeholder", nil
 }
 
 func getHostDBInstanceIdentifier() (string, error) {
-	if viper.IsSet("raids.rds.config.instance_identifier") {
-		return viper.GetString("raids.rds.config.instance_identifier"), nil
-	}
-	return "", errors.New("database instance identifier must be set in the config file")
+	id := viper.GetString("raids.rds.config.instance_identifier")
+	err := checkConfigValues([]string{
+		"raids.rds.config.instance_identifier",
+	})
+	return id, err // id will be "" if not set, err will be nil if id is set
 }
 
 func getHostRDSRegion() (string, error) {
-	if viper.IsSet("raids.rds.config.primary_region") {
-		return viper.GetString("raids.rds.config.primary_region"), nil
-	}
-	return "", errors.New("database instance identifier must be set in the config file")
+	region := viper.GetString("raids.rds.config.primary_region")
+	err := checkConfigValues([]string{
+		"raids.rds.config.primary_region",
+	})
+	return region, err // region will be "" if not set, err will be nil if region is set
 }
 
 func getAWSConfig() (cfg aws.Config, err error) {
-	if viper.IsSet("aws") &&
-		viper.IsSet("aws.access_key") &&
-		viper.IsSet("aws.secret_key") &&
-		viper.IsSet("aws.region") {
-
-		access_key := viper.GetString("aws.access_key")
-		secret_key := viper.GetString("aws.secret_key")
-		session_key := viper.GetString("aws.session_key")
-		region := viper.GetString("aws.region")
-
-		creds := credentials.NewStaticCredentialsProvider(access_key, secret_key, session_key)
-		cfg, err = config.LoadDefaultConfig(context.TODO(), config.WithCredentialsProvider(creds), config.WithRegion(region))
+	err = checkConfigValues([]string{
+		"aws.access_key",
+		"aws.secret_key",
+		"aws.session_key",
+		"aws.region",
+	})
+	if err != nil {
+		return
 	}
+
+	access_key := viper.GetString("aws.access_key")
+	secret_key := viper.GetString("aws.secret_key")
+	session_key := viper.GetString("aws.session_key")
+	region := viper.GetString("aws.region")
+
+	creds := credentials.NewStaticCredentialsProvider(access_key, secret_key, session_key)
+	cfg, err = config.LoadDefaultConfig(context.TODO(), config.WithCredentialsProvider(creds), config.WithRegion(region))
 	return
 }
 
@@ -106,5 +117,20 @@ func getRDSInstanceFromIdentifier(cfg aws.Config, identifier string) (instance *
 	}
 
 	instance, err = rdsClient.DescribeDBInstances(context.TODO(), input)
+	return
+}
+
+// TODO: This could be a good addition to the SDK for future raids to use
+func checkConfigValues(config_values []string) (err error) {
+	missing_values := []string{}
+	for _, value := range config_values {
+		if !viper.IsSet(value) {
+			missing_values = append(missing_values, value)
+		}
+	}
+	if len(missing_values) > 0 {
+		err = errors.New("Missing config values: " + strings.Join(missing_values, ", "))
+		return
+	}
 	return
 }
