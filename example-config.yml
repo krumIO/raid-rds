@@ -1,12 +1,12 @@
 loglevel: Debug
 WriteDirectory: test_output
+AWS:
+  access_key: access
+  secret_key: supersecret
+  session_key: ""
+  region: us-east-1
 raids:
   rds:
-    creds:
-      aws_access_key: access
-      aws_secret_key: supersecret
-      aws_session_key: ""
-      aws_region: us-east-1
     config:
       instance_identifier: unique-id-name
       database: test

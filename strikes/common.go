@@ -48,15 +48,15 @@ func getHostRDSRegion() (string, error) {
 }
 
 func getAWSConfig() (cfg aws.Config, err error) {
-	if viper.IsSet("raids.rds.creds") &&
-		viper.IsSet("raids.rds.creds.aws_access_key") &&
-		viper.IsSet("raids.rds.creds.aws_secret_key") &&
-		viper.IsSet("raids.rds.creds.aws_region") {
+	if viper.IsSet("aws") &&
+		viper.IsSet("aws.access_key") &&
+		viper.IsSet("aws.secret_key") &&
+		viper.IsSet("aws.region") {
 
-		access_key := viper.GetString("raids.rds.creds.aws_access_key")
-		secret_key := viper.GetString("raids.rds.creds.aws_secret_key")
-		session_key := viper.GetString("raids.rds.creds.aws_session_key")
-		region := viper.GetString("raids.rds.creds.aws_region")
+		access_key := viper.GetString("aws.access_key")
+		secret_key := viper.GetString("aws.secret_key")
+		session_key := viper.GetString("aws.session_key")
+		region := viper.GetString("aws.region")
 
 		creds := credentials.NewStaticCredentialsProvider(access_key, secret_key, session_key)
 		cfg, err = config.LoadDefaultConfig(context.TODO(), config.WithCredentialsProvider(creds), config.WithRegion(region))
