@@ -2,6 +2,7 @@ package strikes
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
@@ -45,14 +46,14 @@ func (a *Strikes) AutomatedBackups() (strikeName string, result raidengine.Strik
 	}
 
 	result.Passed = true
-	result.Message = "Completed Successfully"
+	result.Message = "Automated Backups are enabled"
 	return
 }
 
 func checkRDSAutomatedBackupMovement(cfg aws.Config) (result raidengine.MovementResult) {
 
 	result = raidengine.MovementResult{
-		Description: "Check if the instance has automated backups enabled",
+		Description: "Check whether the instance has automated backups enabled",
 		Function:    utils.CallerPath(0),
 	}
 
@@ -71,6 +72,8 @@ func checkRDSAutomatedBackupMovement(cfg aws.Config) (result raidengine.Movement
 	}
 
 	// Loop through the instances and print information
-	result.Passed = len(backups.DBInstanceAutomatedBackups) > 0
+	backupCount := len(backups.DBInstanceAutomatedBackups)
+	result.Message = fmt.Sprintf("%d Automated backups found", backupCount)
+	result.Passed = backupCount > 0
 	return
 }

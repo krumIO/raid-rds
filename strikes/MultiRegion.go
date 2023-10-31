@@ -10,7 +10,7 @@ func (a *Strikes) MultiRegion() (strikeName string, result raidengine.StrikeResu
 	strikeName = "MultiRegion"
 	result = raidengine.StrikeResult{
 		Passed:      false,
-		Description: "Check if AWS RDS instance has multi region. This strike only checks for a read replica in a seperate region",
+		Description: "Check whether AWS RDS instance has multi-region read replicas",
 		DocsURL:     "https://www.github.com/krumIO/raid-rds",
 		ControlID:   "CCC-Taxonomy-1",
 		Movements:   make(map[string]raidengine.MovementResult),
@@ -46,7 +46,7 @@ func (a *Strikes) MultiRegion() (strikeName string, result raidengine.StrikeResu
 func checkRDSMultiRegionMovement(cfg aws.Config) (result raidengine.MovementResult) {
 
 	result = raidengine.MovementResult{
-		Description: "Check if the instance has multi region enabled",
+		Description: "Look for read replicas in a different region than the host instance",
 		Function:    utils.CallerPath(0),
 	}
 	instanceIdentifier, _ := getHostDBInstanceIdentifier()
@@ -58,7 +58,7 @@ func checkRDSMultiRegionMovement(cfg aws.Config) (result raidengine.MovementResu
 
 	if len(readReplicas) == 0 {
 		result.Passed = false
-		result.Message = "Multi Region instances not found"
+		result.Message = "Read replicas not found for this instance"
 		return
 	}
 
@@ -78,7 +78,7 @@ func checkRDSMultiRegionMovement(cfg aws.Config) (result raidengine.MovementResu
 
 		if len(replicaInstance.DBInstances) == 0 {
 			result.Passed = false
-			result.Message = "Cannot access the replica instance " + replica
+			result.Message = "Read replica exists, but cannot access: " + replica
 			return
 		}
 
@@ -87,7 +87,7 @@ func checkRDSMultiRegionMovement(cfg aws.Config) (result raidengine.MovementResu
 		// db instance doesnt contain the region so we need to remove the last character from the az
 		if az[:len(az)-1] == hostRDSRegion {
 			result.Passed = false
-			result.Message = "Multi Region instances not found"
+			result.Message = "Read replica exists, but not in a different region"
 			return
 		}
 	}

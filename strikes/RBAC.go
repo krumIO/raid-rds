@@ -14,7 +14,7 @@ func (a *Strikes) RBAC() (strikeName string, result raidengine.StrikeResult) {
 	strikeName = "RBAC"
 	result = raidengine.StrikeResult{
 		Passed:      false,
-		Description: "Check if database IAM authentication is enabled on the specified RDS instance",
+		Description: "Check whether primary RDS instance supports RBAC authentication",
 		DocsURL:     "https://www.github.com/krumIO/raid-rds",
 		ControlID:   "CCC-Taxonomy-1",
 		Movements:   make(map[string]raidengine.MovementResult),
@@ -36,20 +36,19 @@ func (a *Strikes) RBAC() (strikeName string, result raidengine.StrikeResult) {
 
 	iamDatabaseAuthMovement := checkForIAMDatabaseAuthMovement(cfg)
 	result.Movements["CheckForIAMDatabaseAuth"] = iamDatabaseAuthMovement
+	result.Message = iamDatabaseAuthMovement.Message
 	if !iamDatabaseAuthMovement.Passed {
-		result.Message = iamDatabaseAuthMovement.Message
 		return
 	}
 
 	result.Passed = true
-	result.Message = "Completed Successfully"
 	return
 }
 
 func checkForIAMDatabaseAuthMovement(cfg aws.Config) (result raidengine.MovementResult) {
 
 	result = raidengine.MovementResult{
-		Description: "Check if the instance has IAM Database Authentication enabled",
+		Description: "Check whether the instance has IAM Database Authentication enabled",
 		Function:    utils.CallerPath(0),
 	}
 
@@ -71,5 +70,6 @@ func checkForIAMDatabaseAuthMovement(cfg aws.Config) (result raidengine.Movement
 
 	// Loop through the instances and print information
 	result.Passed = true
+	result.Message = "IAM Database Authentication is enabled"
 	return
 }

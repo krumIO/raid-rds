@@ -92,7 +92,7 @@ func connectToDb() (result raidengine.MovementResult) {
 func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult) {
 	// check if the instance is available
 	result = raidengine.MovementResult{
-		Description: "Check if the instance is available/exists",
+		Description: "Check whether the instance can be reached",
 		Function:    utils.CallerPath(0),
 	}
 
@@ -105,6 +105,7 @@ func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult)
 		result.Passed = false
 		return
 	}
+	result.Message = "Instance found"
 	result.Passed = len(instance.DBInstances) > 0
 	return
 }
