@@ -42,14 +42,14 @@ func (a *Strikes) Encryption() (strikeName string, result raidengine.StrikeResul
 	}
 
 	result.Passed = true
-	result.Message = "Completed Successfully"
+	result.Message = "Storage encryption is enabled"
 	return
 }
 
 func checkIfStorageIsEncryptedMovement(cfg aws.Config) (result raidengine.MovementResult) {
 
 	result = raidengine.MovementResult{
-		Description: "Check if the instance has storage encryption enabled",
+		Description: "Check whether the instance has storage encryption enabled",
 		Function:    utils.CallerPath(0),
 	}
 
