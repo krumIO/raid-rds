@@ -86,6 +86,9 @@ func init() {
 	Armory.Tactics = map[string][]raidengine.Strike{
 		"CCC-Taxonomy": {
 			Armory.AutomatedBackups,
+			Armory.Encryption,
+			Armory.MultiRegion,
+			Armory.SQLFeatures,
 		},
 		"CCC-Hardening": {
 			Armory.AutomatedBackups,
