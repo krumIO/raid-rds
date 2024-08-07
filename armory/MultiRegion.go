@@ -1,4 +1,4 @@
-package strikes
+package armory
 
 import (
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -6,7 +6,7 @@ import (
 	"github.com/privateerproj/privateer-sdk/utils"
 )
 
-func (a *Strikes) MultiRegion() (strikeName string, result raidengine.StrikeResult) {
+func (a *RDSRaid) MultiRegion() (strikeName string, result raidengine.StrikeResult) {
 	strikeName = "MultiRegion"
 	result = raidengine.StrikeResult{
 		Passed:      false,
