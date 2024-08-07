@@ -1,4 +1,4 @@
-package strikes
+package armory
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ import (
 // Alerting.go - check for enabled, req API/CLI
 
 // This creates a database table
-func (a *Strikes) SQLFeatures() (strikeName string, result raidengine.StrikeResult) {
+func (a *RDSRaid) SQLFeatures() (strikeName string, result raidengine.StrikeResult) {
 	strikeName = "SQLFeatures"
 	result = raidengine.StrikeResult{
 		Passed:      false,

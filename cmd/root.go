@@ -9,7 +9,8 @@ import (
 	"github.com/privateerproj/privateer-sdk/plugin"
 	"github.com/privateerproj/privateer-sdk/raidengine"
 
-	"github.com/krumIO/raid-rds/strikes"
+	// "github.com/krumIO/raid-rds/strikes"
+	"github.com/krumIO/raid-rds/armory"
 )
 
 var (
@@ -19,32 +20,35 @@ var (
 	buildTime          string
 
 	RaidName = "RDS"
-	Strikes  = &strikes.Strikes{}
+	// Strikes  = &strikes.Strikes{}
 
-	AvailableStrikes = map[string][]raidengine.Strike{
-		"default": {
-			Strikes.SQLFeatures,
-			Strikes.AutomatedBackups,
-			Strikes.MultiRegion,
-			Strikes.Encryption,
-		},
-		"CCC-Taxonomy": {
-			Strikes.SQLFeatures,
-			Strikes.AutomatedBackups,
-			Strikes.MultiRegion,
-			Strikes.Encryption,
-			Strikes.RBAC,
-			// Strikes.VerticalScaling,
-			// Strikes.Replication,
-			// Strikes.BackupRecovery,
-			// Strikes.Logging,
-			// Strikes.Monitoring,
-			// Strikes.Alerting,
-		},
-		"CIS": {
-			// Strikes.DNE,
-		},
-	}
+	// AvailableStrikes = map[string][]raidengine.Strike{
+	// 	"default": {
+	// 		Strikes.SQLFeatures,
+	// 		Strikes.AutomatedBackups,
+	// 		Strikes.MultiRegion,
+	// 		Strikes.Encryption,
+	// 	},
+	// 	"CCC-Taxonomy": {
+	// 		Strikes.SQLFeatures,
+	// 		Strikes.AutomatedBackups,
+	// 		Strikes.MultiRegion,
+	// 		Strikes.Encryption,
+	// 		Strikes.RBAC,
+	// 		// Strikes.VerticalScaling,
+	// 		// Strikes.Replication,
+	// 		// Strikes.BackupRecovery,
+	// 		// Strikes.Logging,
+	// 		// Strikes.Monitoring,
+	// 		// Strikes.Alerting,
+	// 	},
+	// 	"CIS": {
+	// 		// Strikes.DNE,
+	// 	},
+	// }
+
+	Armory = &armory.RDSRaid{}
+
 	// runCmd represents the base command when called without any subcommands
 	runCmd = &cobra.Command{
 		Use:   RaidName,
@@ -78,6 +82,19 @@ func Execute(version, commitHash, builtAt string) {
 }
 
 func init() {
+
+	Armory.Tactics = map[string][]raidengine.Strike{
+		"CCC-Taxonomy": {
+			Armory.AutomatedBackups,
+		},
+		"CCC-Hardening": {
+			Armory.AutomatedBackups,
+		},
+		"CIS": {
+			Armory.AutomatedBackups,
+		},
+	}
+
 	command.SetBase(runCmd) // This initializes the base CLI functionality
 }
 
@@ -95,5 +112,5 @@ func cleanupFunc() error {
 // Adding raidengine.SetupCloseHandler(cleanupFunc) will allow you to append custom cleanup behavior
 func (r *Raid) Start() error {
 	raidengine.SetupCloseHandler(cleanupFunc)
-	return raidengine.Run(RaidName, AvailableStrikes, Strikes)
+	return raidengine.Run(RaidName, Armory)
 }

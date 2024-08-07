@@ -1,4 +1,4 @@
-package strikes
+package armory
 
 import (
 	"context"
@@ -9,49 +9,25 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
-	hclog "github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-hclog"
 	"github.com/privateerproj/privateer-sdk/raidengine"
 	"github.com/privateerproj/privateer-sdk/utils"
 	"github.com/spf13/viper"
 )
 
-type Strikes struct {
-	Log hclog.Logger
+type RDSRaid struct {
+	Tactics map[string][]raidengine.Strike     // Required, allows you to sort which strikes are run for each control
+	Log     hclog.Logger                       // Recommended, allows you to set the log level for each log message
+	Results map[string]raidengine.StrikeResult // Optional, allows cross referencing between strikes
 }
 
-type Movement struct {
-	Strike string
-}
-
-func (a *Strikes) SetLogger(loggerName string) {
+func (a *RDSRaid) SetLogger(loggerName string) hclog.Logger {
 	a.Log = raidengine.GetLogger(loggerName, false)
+	return a.Log
 }
 
-func getDBConfig() (string, error) {
-	err := checkConfigValues([]string{
-		"raids.rds.config.host",
-		"raids.rds.config.database",
-	})
-	if err != nil {
-		return "", err
-	}
-	return "database_host_placeholder", nil
-}
-
-func getHostDBInstanceIdentifier() (string, error) {
-	id := viper.GetString("raids.rds.config.instance_identifier")
-	err := checkConfigValues([]string{
-		"raids.rds.config.instance_identifier",
-	})
-	return id, err // id will be "" if not set, err will be nil if id is set
-}
-
-func getHostRDSRegion() (string, error) {
-	region := viper.GetString("raids.rds.config.primary_region")
-	err := checkConfigValues([]string{
-		"raids.rds.config.primary_region",
-	})
-	return region, err // region will be "" if not set, err will be nil if region is set
+func (a *RDSRaid) GetTactics() map[string][]raidengine.Strike {
+	return a.Tactics
 }
 
 func getAWSConfig() (cfg aws.Config, err error) {
@@ -75,6 +51,32 @@ func getAWSConfig() (cfg aws.Config, err error) {
 	return
 }
 
+// TODO: This could be a good addition to the SDK for future raids to use
+func checkConfigValues(config_values []string) (err error) {
+	missing_values := []string{}
+	for _, value := range config_values {
+		if !viper.IsSet(value) {
+			missing_values = append(missing_values, value)
+		}
+	}
+	if len(missing_values) > 0 {
+		err = errors.New("Missing config values: " + strings.Join(missing_values, ", "))
+		return
+	}
+	return
+}
+
+func getDBConfig() (string, error) {
+	err := checkConfigValues([]string{
+		"raids.rds.config.host",
+		"raids.rds.config.database",
+	})
+	if err != nil {
+		return "", err
+	}
+	return "database_host_placeholder", nil
+}
+
 func connectToDb() (result raidengine.MovementResult) {
 	result = raidengine.MovementResult{
 		Description: "The database host must be available and accepting connections",
@@ -87,6 +89,22 @@ func connectToDb() (result raidengine.MovementResult) {
 	}
 	result.Passed = true
 	return
+}
+
+func getHostDBInstanceIdentifier() (string, error) {
+	id := viper.GetString("raids.rds.config.instance_identifier")
+	err := checkConfigValues([]string{
+		"raids.rds.config.instance_identifier",
+	})
+	return id, err // id will be "" if not set, err will be nil if id is set
+}
+
+func getHostRDSRegion() (string, error) {
+	region := viper.GetString("raids.rds.config.primary_region")
+	err := checkConfigValues([]string{
+		"raids.rds.config.primary_region",
+	})
+	return region, err // region will be "" if not set, err will be nil if region is set
 }
 
 func checkRDSInstanceMovement(cfg aws.Config) (result raidengine.MovementResult) {
@@ -118,20 +136,5 @@ func getRDSInstanceFromIdentifier(cfg aws.Config, identifier string) (instance *
 	}
 
 	instance, err = rdsClient.DescribeDBInstances(context.TODO(), input)
-	return
-}
-
-// TODO: This could be a good addition to the SDK for future raids to use
-func checkConfigValues(config_values []string) (err error) {
-	missing_values := []string{}
-	for _, value := range config_values {
-		if !viper.IsSet(value) {
-			missing_values = append(missing_values, value)
-		}
-	}
-	if len(missing_values) > 0 {
-		err = errors.New("Missing config values: " + strings.Join(missing_values, ", "))
-		return
-	}
 	return
 }

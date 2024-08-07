@@ -1,4 +1,4 @@
-package strikes
+package armory
 
 import (
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -10,7 +10,7 @@ import (
 // Encryption.go - AWS CLI
 
 // This creates a database table
-func (a *Strikes) Encryption() (strikeName string, result raidengine.StrikeResult) {
+func (a *RDSRaid) Encryption() (strikeName string, result raidengine.StrikeResult) {
 	strikeName = "Encryption"
 	result = raidengine.StrikeResult{
 		Passed:      false,

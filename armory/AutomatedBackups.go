@@ -1,4 +1,4 @@
-package strikes
+package armory
 
 import (
 	"context"
@@ -10,11 +10,7 @@ import (
 	"github.com/privateerproj/privateer-sdk/utils"
 )
 
-// Todo/Roadmap: Features to evaluate implementing
-// AutomatedBackup.go - AWS CLI - check backup interval
-
-// This creates a database table
-func (a *Strikes) AutomatedBackups() (strikeName string, result raidengine.StrikeResult) {
+func (a *RDSRaid) AutomatedBackups() (strikeName string, result raidengine.StrikeResult) {
 	strikeName = "AutomatedBackups"
 	result = raidengine.StrikeResult{
 		Passed:      false,
